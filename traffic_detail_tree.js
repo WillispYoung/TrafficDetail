@@ -17,17 +17,27 @@ const svg = d3.select("body")
     .style("font", "14px arial")
     .style("user-select", "none");
 
-async function drawTree() {
-    const data = await d3.json("data/tree.json");
-    const root = d3.hierarchy(data);
-    const links = root.links();
+var nodes = [];
+var id = 0;
 
-    console.log(links);
-
-    for (key in data) {
-        console.log(key + ":" + data[key]);
-
+function getNodes(root) {
+    var keys = Object.keys(root);
+    for (index in keys) {
+        nodes.push({"id": id++, "name": keys[index]});
+        getNodes(root[keys[index]]);
     }
+
+    // console.log(nodes);
+    
+}
+
+async function drawTree() {
+    const data = await d3.json("data/tree-short.json");
+
+    nodes.push({"id": id++, "name": data["name"]});
+    getNodes(data["children"]);
+
+    // console.log(nodes);
 }
 
 drawTree();
