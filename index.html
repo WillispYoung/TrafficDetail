@@ -2,13 +2,27 @@
 <html>
 
 <head>
-    <title>Traffic Detail-Tree Layout</title>
+    <meta charset="utf-8">
+    <title>清华流量助手</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
+    <div id="tree" class="col-7">
+        <div id="title">清华流量助手</div>
+        <svg id="year"></svg>
+        <svg id="month"></svg>
+        <svg id="calendar"></svg>
+    </div>
+
+    <div id="map" class="col-5">
+        <img src="src/THU-map.jpg" />
+    </div>
+
     <script src="d3/d3.js"></script>
-    <script src="jquery/jquery-3.3.1.min.js"></script>
-    <script src="traffic_detail_tree.js"></script>
+	<script src="jquery/jquery-3.3.1.min.js"></script>
+	<script src="util.js"></script>
+	<script src="traffic-detail-tree.js"></script>
 </body>
 
 </html>

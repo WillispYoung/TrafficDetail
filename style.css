@@ -1,0 +1,36 @@
+body {
+    background: #ccdefc;
+}
+
+.col-7 {
+    margin-left: 10px;
+    display: block;
+    float: left;
+    /*border: 1px solid steelblue;*/
+}
+
+.col-5 {
+    margin-left: 10px;
+    display: block;
+    float: left;
+    /*border: 1px solid lightblue;*/
+}
+
+.col-5 img {
+    display: block;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#title {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 26px;
+    font-family: "FangSong", "仿宋";
+    font-weight: bold;
+    color: #7904d8;
+}
