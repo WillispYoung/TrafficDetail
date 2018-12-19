@@ -1,2 +1,2 @@
-# TrafficDetail-Tree
-Information visualization: project
+# TrafficDetail
+Display THUers' traffic usage intellegently!
