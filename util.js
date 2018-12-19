@@ -7,10 +7,6 @@ function update_size() {
 
 	$("body").width(width * 0.99);
 	$("body").height(height * 0.96);
-    $(".col-7").width(width * 7 / 12.5);
-    $(".col-7").height(height * 0.95);
-    $(".col-5").width(width * 5 / 12.5);
-    $(".col-5").height(height * 0.95);
 }
 
 update_size();
