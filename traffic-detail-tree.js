@@ -5,7 +5,7 @@ const gTree = d3.select("#tree"),
     gCalendar = d3.select("#calendar");
 
 async function drawTree() {
-    const data = await d3.json("data/tree-short-formated.json");
+    const data = await d3.json("data/tree-short-formatted.json");
     
 }
 

@@ -11,9 +11,6 @@ function update_size() {
     $(".col-7").height(height * 0.95);
     $(".col-5").width(width * 5 / 12.5);
     $(".col-5").height(height * 0.95);
-
-    var tWidth = $("#tree").width();
-    d3.select("#year").attr("width", tWidth * 0.95);
 }
 
 update_size();
