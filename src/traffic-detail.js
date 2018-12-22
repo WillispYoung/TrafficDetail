@@ -66,7 +66,7 @@ function gradient(fraction, type) {
     return ans;
 }
 
-async function drawTree() {
+function drawTree() {
     data = {
         year: [2017, 2018],
         month: [5, 6, 7, 8, 9, 10],
@@ -280,6 +280,7 @@ async function drawTree() {
         d3.selectAll(".year")
             .transition(transition)
             .attr("transform", `translate(${-lblockW*0.05},${height*0.35}) scale(0.3)`);
+        sleep(200);
         d3.selectAll(".month")
             .transition(transition)
             .attr("transform", `translate(${lblockW*0.02},${height*0.2}) scale(0.6)`);
@@ -361,26 +362,34 @@ async function drawTree() {
     }
 
     function collapseAll() {
-        d3.selectAll(".week").transition(transition)
+        d3.selectAll(".week")
+            .transition(transition)
             .attr("opacity", "0.3")
             .attr("transform", `translate(${lblockW/3},0)`)
             .remove();
-        d3.selectAll(".month").transition(transition)
+        sleep(200);
+        d3.selectAll(".month")
+            .transition(transition)
             .attr("opacity", "0.5")
             .attr("transform", `translate(${lblockW/3},0)`)
             .remove();
-        d3.selectAll(".year").transition(transition)
+        sleep(200);
+        d3.selectAll(".year")
+            .transition(transition)
             .attr("transform", null);
     }
 
     function collapseCalendar() {
-        d3.selectAll(".week").transition(transition)
+        d3.selectAll(".week")
+            .transition(transition)
             .attr("opacity", "0.3")
             .attr("transform", `translate(${lblockW/3},0)`)
             .remove();
-        d3.selectAll(".month").transition(transition)
+        d3.selectAll(".month")
+            .transition(transition)
             .attr("transform", null);
-        d3.selectAll(".year").transition(transition)
+        d3.selectAll(".year")
+            .transition(transition)
             .attr("transform", `translate(${-lblockW*0.15},${height*0.2}) scale(0.6)`);
     }
 
