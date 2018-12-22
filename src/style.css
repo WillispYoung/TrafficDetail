@@ -1,5 +1,5 @@
 body {
-    background: #ccdefc;
+    background: #d3f0ff;
 }
 
 g {
@@ -12,21 +12,21 @@ rect {
 }
 
 .year-name {
-    text-anchor: start;
+    text-anchor: middle;
     stroke: white;
-    stroke-width: 1;
+    stroke-width: 2;
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
 .month-name {
-    text-anchor: start;
+    text-anchor: middle;
     stroke: white;
     stroke-width: 1;
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
 .day-text {
-    text-anchor: start;
+    text-anchor: middle;
     stroke: white;
     stroke-width: 1;
     font-family: "Consolas", "Arial", "Tahoma";
@@ -35,8 +35,8 @@ rect {
 #title {
     margin-top: 10px;
     text-align: center;
-    font-size: 26px;
-    font-family: "FangSong", "仿宋";
-    font-weight: bold;
-    fill: #7904d8;
+    font-size: 30px;
+    font-family: "Microsoft Yahei", "微软雅黑" ;
+    /*font-weight: bold;*/
+    fill: #0e2e3d;
 }
