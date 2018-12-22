@@ -66,7 +66,7 @@ function gradient(fraction, type) {
     return ans;
 }
 
-function drawTree() {
+async function drawTree() {
     data = {
         year: [2017, 2018],
         month: [5, 6, 7, 8, 9, 10],
@@ -367,13 +367,11 @@ function drawTree() {
             .attr("opacity", "0.3")
             .attr("transform", `translate(${lblockW/3},0)`)
             .remove();
-        sleep(200);
         d3.selectAll(".month")
             .transition(transition)
             .attr("opacity", "0.5")
             .attr("transform", `translate(${lblockW/3},0)`)
             .remove();
-        sleep(200);
         d3.selectAll(".year")
             .transition(transition)
             .attr("transform", null);
