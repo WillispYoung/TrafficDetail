@@ -301,7 +301,7 @@ async function drawTree() {
                     .attr("y", dayY)
                     .attr("width", unit)
                     .attr("height", unit)
-                    .attr("fill", gradient(parseInt(k)/6, 4))
+                    .attr("fill", gradient(parseInt(k) / 6, 4))
                     .on("mouseover", function() {
                         d3.select(this).attr("cursor", "pointer");
                     })
@@ -311,15 +311,20 @@ async function drawTree() {
                             // select day in a week
                             status = "ymwd";
                             selected_element = d3.select(this);
-                            d3.select(this).attr("fill", "#077");
+                            d3.select(this)
+                                .attr("stroke", "#ff5151")
+                                .attr("stroke-width", "3");
                         } else if (status == "ymwd" && id_day == selected_element.attr("id")) {
                             // focus on this day
 
                         } else {
                             // change selected day
-                            selected_element.attr("fill", "#0bb");
+                            selected_element.attr("stroke", null)
+                                .attr("stroke-width", null);
                             selected_element = d3.select(this);
-                            d3.select(this).attr("fill", "#077");
+                            d3.select(this)
+                                .attr("stroke", "#ff5151")
+                                .attr("stroke-width", "3");
                         }
                     });
 
