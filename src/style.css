@@ -2,37 +2,26 @@ body {
     background: #ccdefc;
 }
 
-#title {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 26px;
-    font-family: "FangSong", "仿宋";
-    font-weight: bold;
-    fill: #7904d8;
-}
-
 g {
     user-select: none;
 }
 
-.year-rect {
-    rx: 4;
-    ry: 4;
+rect {
+    rx: 3;
+    ry: 3;
 }
 
 .year-name {
     text-anchor: start;
     stroke: white;
-    stroke-width: 2;
-    font-size: 28px;
+    stroke-width: 1;
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
 .month-name {
     text-anchor: start;
     stroke: white;
-    stroke-width: 2;
-    font-size: 24px;
+    stroke-width: 1;
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
@@ -40,6 +29,14 @@ g {
     text-anchor: start;
     stroke: white;
     stroke-width: 1;
-    font-size: 16px;
-    font-family: "Consolas", "Arial", "Tahoma"; 
+    font-family: "Consolas", "Arial", "Tahoma";
+}
+
+#title {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 26px;
+    font-family: "FangSong", "仿宋";
+    font-weight: bold;
+    fill: #7904d8;
 }

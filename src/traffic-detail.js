@@ -1,5 +1,14 @@
 const pixelW = 2000;
 const pixelH = 2797;
+const colorSet = [
+    [16, 76, 181],
+    [181, 207, 255],
+    [23, 86, 49],
+    [204, 255, 225],
+    [14, 46, 61],
+    [84, 166, 206]
+];
+
 var width, height, lblockW, rblockW;
 
 const svg = d3.select("#everything");
@@ -45,8 +54,13 @@ updateSize();
 $(window).resize(function() { updateSize(); });
 
 // generate gradient color based on fraction
-function gradient(index) {
-    
+function gradient(fraction, type) {
+    ans = "#";
+    for (var i = 0; i < 3; i++) {
+        v = colorSet[type][i] + fraction * (colorSet[type + 1][i] - colorSet[type][i]);
+        ans += ('00' + (v & 255).toString(16)).slice(-2);
+    }
+    return ans;
 }
 
 async function drawTree() {
@@ -113,8 +127,6 @@ async function drawTree() {
             .each(function() {
                 id = d3.select(this).attr('id');
                 index = data.year.indexOf(parseInt(id));
-                rect = d3.select(this).select(".year-rect");
-                // name = d3.select(this).select(".year-name");
 
                 yearX = lblockW / 3;
                 yearY = (height - metric.year[center.year]) / 2;
@@ -124,15 +136,21 @@ async function drawTree() {
                 else
                     for (var j = center.year; j < index; j++)
                         yearY += metric.year[j] + 5;
+                yearW = lblockW / 3 - 10 * Math.abs(index - center.year);
 
-                rect.attr("x", yearX + 5 * Math.abs(index - center.year))
+                d3.select(this).select(".year-rect")
+                    .attr("x", yearX + 5 * Math.abs(index - center.year))
                     .attr("y", yearY)
                     .attr("width", lblockW / 3 - 10 * Math.abs(index - center.year))
                     .attr("height", metric.year[index])
-                    .attr("fill", index == center.year ? "#077" : "#0bb");
+                    .attr("fill", gradient(Math.abs(index - center.year) / data.year.length, 0));
 
-                // name.attr("x", yearX)
-                //     .attr("y", yearY);
+                d3.select(this).select(".year-name")
+                    .attr("x", yearX)
+                    .attr("y", yearY)
+                    .attr("dx", yearW / 3 + 3.33 * Math.abs(index - center.year))
+                    .attr("dy", metric.year[index] * 0.6)
+                    .attr("font-size", Math.floor(metric.year[index] * 0.375).toString() + "px");
             });
     }
 
@@ -143,7 +161,6 @@ async function drawTree() {
             .each(function() {
                 id = d3.select(this).attr("id");
                 index = data.month.indexOf(parseInt(id.split("-")[1]));
-                rect = d3.select(this).select(".month-rect");
 
                 monthX = lblockW / 3;
                 monthY = (height - metric.month[center.month]) / 2;
@@ -153,12 +170,21 @@ async function drawTree() {
                 else
                     for (var j = center.month; j < index; j++)
                         monthY += metric.month[j] + 2;
+                monthW = lblockW / 3 - 6 * Math.abs(index - center.month);
 
-                rect.attr("x", monthX + 3 * Math.abs(index - center.month))
+                d3.select(this).select(".month-rect")
+                    .attr("x", monthX + 3 * Math.abs(index - center.month))
                     .attr("y", monthY)
                     .attr("width", lblockW / 3 - 6 * Math.abs(index - center.month))
                     .attr("height", metric.month[index])
-                    .attr("fill", index == center.month ? "#077" : "#0bb");
+                    .attr("fill", gradient(Math.abs(index - center.month) / data.month.length, 2));
+
+                d3.select(this).select(".month-name")
+                    .attr("x", monthX)
+                    .attr("y", monthY)
+                    .attr("dx", monthW / 3 + Math.abs(index - center.month))
+                    .attr("dy", metric.month[index] * 0.75)
+                    .attr("font-size", Math.floor(metric.month[index] * 0.7).toString() + "px");
             });
     }
 
@@ -214,21 +240,23 @@ async function drawTree() {
             else
                 for (var j = center.month; j < i; j++)
                     monthY += metric.month[j] + 2;
+            monthW = lblockW / 3 - 6 * Math.abs(i - center.month);
 
             month.append("rect")
                 .attr("class", "month-rect")
                 .attr("x", monthX + 3 * Math.abs(i - center.month))
                 .attr("y", monthY)
-                .attr("width", lblockW / 3 - 6 * Math.abs(i - center.month))
+                .attr("width", monthW)
                 .attr("height", metric.month[i])
-                .attr("fill", i == center.month ? "#077" : "#0bb");
+                .attr("fill", gradient(Math.abs(i - center.month) / data.month.length, 2));
 
             month.append("text")
                 .attr("class", "month-name")
                 .attr("x", monthX)
                 .attr("y", monthY)
-                .attr("dx", 100)
-                .attr("dy", 40)
+                .attr("dx", monthW / 3 + Math.abs(i - center.month))
+                .attr("dy", metric.month[i] * 0.75)
+                .attr("font-size", Math.floor(metric.month[i] * 0.7).toString() + "px")
                 .text(data.month[i].toString());
         }
     }
@@ -237,7 +265,7 @@ async function drawTree() {
         d3.selectAll(".year")
             .attr("transform", `translate(${-lblockW*0.05},${height*0.35}) scale(0.3)`);
         d3.selectAll(".month")
-            .attr("transform", `translate(0,${height*0.2}) scale(0.6)`);
+            .attr("transform", `translate(${lblockW*0.02},${height*0.2}) scale(0.6)`);
 
         unit = lblockW / (3 * 8);
         for (var k in weekdata) {
@@ -252,8 +280,7 @@ async function drawTree() {
                 .on("click", function() {
                     if (status == "ymw" && id_week != selected_element.attr("id")) {
                         selected_element = d3.select(this);
-                        // change week focus
-
+                        center.week = parseInt(d3.select(this).attr("id").split("-")[2]);
                     }
                 });
 
@@ -261,7 +288,7 @@ async function drawTree() {
                 selected_element = week;
 
             for (var i in weekdata[k]) {
-                dayX = parseInt(k) == 1 ? 
+                dayX = parseInt(k) == 1 ?
                     lblockW / 2 + (parseInt(i) + 7 - weekdata[k].length) * (unit + 5) :
                     lblockW / 2 + parseInt(i) * (unit + 5);
                 // 6 == weekdata.length, yet dictionary lack length property.
@@ -274,7 +301,7 @@ async function drawTree() {
                     .attr("y", dayY)
                     .attr("width", unit)
                     .attr("height", unit)
-                    .attr("fill", "#0bb")
+                    .attr("fill", gradient(parseInt(k)/6, 4))
                     .on("mouseover", function() {
                         d3.select(this).attr("cursor", "pointer");
                     })
@@ -301,7 +328,7 @@ async function drawTree() {
                     .attr("id", id_week + "-" + weekdata[k][i].toString() + "T")
                     .attr("x", dayX)
                     .attr("y", dayY)
-                    .attr("dx", unit / 2)
+                    .attr("dx", unit / 4)
                     .attr("dy", unit / 2)
                     .text(weekdata[k][i]);
             }
@@ -310,7 +337,7 @@ async function drawTree() {
 
     function collapseAll() {
         d3.selectAll(".month").remove();
-        d3.selectAll(".calendar").remove();
+        d3.selectAll(".week").remove();
         d3.selectAll(".year").attr("transform", null);
     }
 
@@ -329,12 +356,14 @@ async function drawTree() {
         else
             for (var j = center.year; j < i; j++)
                 yearY += metric.year[j] + 5;
+        yearW = lblockW / 3 - 10 * Math.abs(i - center.year);
 
         year = svg.append("g")
             .attr("class", "year")
             .attr("id", data.year[i].toString())
             .on("mouseover", function() {
                 d3.select(this).attr("cursor", "pointer");
+
             })
             .on("click", function() {
                 id = d3.select(this).attr("id");
@@ -366,16 +395,17 @@ async function drawTree() {
             .attr("class", "year-rect")
             .attr("x", yearX + 5 * Math.abs(i - center.year))
             .attr("y", yearY)
-            .attr("width", lblockW / 3 - 10 * Math.abs(i - center.year))
+            .attr("width", yearW)
             .attr("height", metric.year[i])
-            .attr("fill", i == center.year ? "#077" : "#0bb");
+            .attr("fill", gradient(Math.abs(i - center.year) / data.year.length, 0));
 
         year.append("text")
             .attr("class", "year-name")
             .attr("x", yearX)
             .attr("y", yearY)
-            .attr("dx", 100)
-            .attr("dy", 40)
+            .attr("dx", yearW / 3 + 3.33 * Math.abs(i - center.year))
+            .attr("dy", metric.year[i] * 0.6)
+            .attr("font-size", Math.floor(metric.year[i] * 0.375).toString() + "px")
             .text(data.year[i].toString());
     }
 }
