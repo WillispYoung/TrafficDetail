@@ -1,5 +1,5 @@
-const pixelW = 4160;
-const pixelH = 4702;
+const pixelW = 2000;
+const pixelH = 2797;
 const colorSet = [
     [16, 76, 181],
     [181, 207, 255],
@@ -12,37 +12,53 @@ const colorSet = [
 var width, height, lblockW, rblockW;
 
 const svg = d3.select("#everything");
+
 var title = svg.append("image").attr("xlink:href", "src/title.png");
-var map = svg.append("image").attr("xlink:href", "src/map-cut-2.png");
+var map = svg.append("image").attr("xlink:href", "src/map.jpg");
 
-width = $(window).width() * 0.97;
-height = $(window).height() * 0.96;
-lblockW = width * 8 / 13;
-rblockW = width * 5 / 13;
-
-svg.attr("width", width).attr("height", height);
-
-title.attr("width", lblockW * 0.4)
-    .attr("x", lblockW * 0.3)
-    .attr("y", lblockW * 0.05);
-
-imageW = rblockW;
-imageH = imageW * pixelH / pixelW;
-if (imageH > height) {
-    imageH = height;
-    imageW = imageH * pixelW / pixelH;
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
-imageX = lblockW + (rblockW - imageW) / 2;
-imageY = (height - imageH) / 2;
-map.attr("x", imageX).attr("y", imageY).attr("width", imageW);
 
 const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
+
+// update elements size and position
+function updateSize() {
+    width = $(window).width() * 0.97;
+    height = $(window).height() * 0.96;
+    lblockW = width * 7 / 12;
+    rblockW = width * 5 / 12;
+
+    svg.attr("width", width).attr("height", height);
+
+    // place title in the center of left block
+    title.attr("width", lblockW * 0.4)
+        .attr("x", lblockW * 0.3)
+        .attr("y", lblockW * 0.05);
+
+    // place map in the center of right block
+    imageW = rblockW;
+    imageH = imageW * pixelH / pixelW;
+    if (imageH > height) {
+        imageH = height;
+        imageW = imageH * pixelW / pixelH;
+    }
+    imageX = lblockW + (rblockW - imageW) / 2;
+    imageY = (height - imageH) / 2;
+    map.attr("x", imageX).attr("y", imageY).attr("width", imageW);
+}
+
+updateSize();
+
 const transition = svg.transition()
     .duration(500)
     .attr("height", height)
     .attr("viewBox", [0, 0, width, height])
     .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
 
+$(window).resize(function() { updateSize(); });
+
+// generate gradient color based on fraction
 function gradient(fraction, type) {
     ans = "#";
     for (var i = 0; i < 3; i++) {
@@ -53,61 +69,60 @@ function gradient(fraction, type) {
 }
 
 async function drawTree() {
-    function getNode(root, date) {
-        //date = [year, month, week, day]'s any prefix
-        node = root;
-        nullNode = { "stat": { "out": "0B", "Time": "00:00:00", "in": "0B" }, "block": [] };
-        if (date.length >= 1) {
-            node = node["" + date[0]];
-        }
-        for (var i = 1; i < date.length; i++) {
-            node = node["children"]["" + date[i]];
-        }
-        //node may be undefined
-        if (typeof(node) == "undefined") {
-            return nullNode
-        } else {
-            return node;
-        }
-    }
-
     tree = await d3.json("data/myTree.json");
-    status = "y"; // "ym", "ymw", "ymwd"
-    selected_item = undefined;
+    console.log(tree);
+
+    data = {
+        year: [2017, 2018],
+        month: [5, 6, 7, 8, 9, 10],
+    };
+
+    weekdata = {
+        1: [1, 2],
+        2: [3, 4, 5, 6, 7, 8, 9],
+        3: [10, 11, 12, 13, 14, 15, 16],
+        4: [17, 18, 19, 20, 21, 22, 23],
+        5: [24, 25, 26, 27, 28, 29, 30],
+        6: [31]
+    };
+
+    center = {
+        year: 0, // index in array
+        month: 0, // index in array
+        week: 1 // key value in dict, init as first
+    };
 
     metric = {
         year: [],
         month: []
-    };
-
-    center = {
-        year: 0,
-        month: 6
-    };
-
-    yearLength = Object.keys(tree).length;
-    unit = height / (2 * yearLength);
-    for (var key in tree) {
-        v = Math.cos((parseInt(tree[key].id) / yearLength) * (Math.PI / 2));
-        metric.year.push(v * unit);
     }
 
-    monthLength = 12;
-    for (var i = 0; i < 12; i++)
-        metric.month.push(0);
+    // record current state and chosen element
+    status = "y"; // "ym", "ymw", "ymwd"
+    selected_element = undefined;
+
+    // cosine model: initialization
+    for (var key in data) {
+        unit = height / (2 * data[key].length);
+        center[key] = Math.floor(data[key].length / 2);
+        for (var i in data[key]) {
+            v = Math.cos(((i - center[key]) / data[key].length) * (Math.PI / 2));
+            metric[key].push(v * unit);
+        }
+    }
 
     function computeYearWidth() {
-        unit = height / (2 * yearLength);
-        for (var i in metric.year) {
-            v = Math.cos(((i - center.year) / yearLength) * (Math.PI / 2));
+        unit = height / (2 * data.year.length)
+        for (var i in data.year) {
+            v = Math.cos(((i - center.year) / data.year.length) * (Math.PI / 2));
             metric.year[i] = v * unit;
         }
     }
 
     function computeMonthWidth() {
-        unit = height / (2 * monthLength);
-        for (var i in metric.month) {
-            v = Math.cos(((i - center.month) / monthLength) * (Math.PI / 2));
+        unit = height / (2 * data.month.length)
+        for (var i in data.month) {
+            v = Math.cos(((i - center.month) / data.month.length) * (Math.PI / 2));
             metric.month[i] = v * unit;
         }
     }
@@ -117,8 +132,8 @@ async function drawTree() {
 
         d3.selectAll(".year")
             .each(function() {
-                id = d3.select(this).attr("id");
-                index = parseInt(tree[id].id);
+                id = d3.select(this).attr('id');
+                index = data.year.indexOf(parseInt(id));
 
                 yearX = lblockW / 3;
                 yearY = (height - metric.year[center.year]) / 2;
@@ -136,7 +151,7 @@ async function drawTree() {
                     .attr("y", yearY)
                     .attr("width", lblockW / 3 - 10 * Math.abs(index - center.year))
                     .attr("height", metric.year[index])
-                    .attr("fill", gradient(Math.abs(index - center.year) / yearLength, 4));
+                    .attr("fill", gradient(Math.abs(index - center.year) / data.year.length, 4));
 
                 d3.select(this).select(".year-name")
                     .transition(transition)
@@ -154,7 +169,7 @@ async function drawTree() {
         d3.selectAll(".month")
             .each(function() {
                 id = d3.select(this).attr("id");
-                index = parseInt(id.split("-")[1]) - 1;
+                index = data.month.indexOf(parseInt(id.split("-")[1]));
 
                 monthX = lblockW / 3;
                 monthY = (height - metric.month[center.month]) / 2;
@@ -172,7 +187,7 @@ async function drawTree() {
                     .attr("y", monthY)
                     .attr("width", lblockW / 3 - 6 * Math.abs(index - center.month))
                     .attr("height", metric.month[index])
-                    .attr("fill", gradient(Math.abs(index - center.month) / monthLength, 4));
+                    .attr("fill", gradient(Math.abs(index - center.month) / data.month.length, 4));
 
                 d3.select(this).select(".month-name")
                     .transition(transition)
@@ -185,20 +200,21 @@ async function drawTree() {
     }
 
     function expandMonthes() {
+        // expand according to center.year
         d3.selectAll(".year")
             .transition(transition)
             .attr("transform", `translate(${-lblockW*0.15},${height*0.2}) scale(0.6)`);
 
+        // restore center.month
         status = "ym";
+        center.month = data.month.length / 2;
         computeMonthWidth();
 
-        originYear = selected_item.attr("id");
-        root = tree[originYear];
-        for (var i = 0; i < 12; i++) {
-            index = i;
+        // data.month -> data.month[center.year] in real case
+        for (var i in data.month) {
             month = svg.append("g")
                 .attr("class", "month")
-                .attr("id", originYear + "-" + (index + 1).toString())
+                .attr("id", data.year[center.year].toString() + "-" + data.month[i].toString())
                 .on("mouseover", function() {
                     d3.select(this).attr("cursor", "pointer");
                     d3.select(this).select(".month-rect")
@@ -213,54 +229,55 @@ async function drawTree() {
                 .on("click", function() {
                     id = d3.select(this).attr('id');
                     // expand calendar
-                    if (status == "ym" && id == selected_item.attr("id")) {
+                    if (status == "ym" && id == selected_element.attr("id")) {
+                        status = "ymw";
                         expandWeeks();
                     }
                     // reposition monthes according to center.month
-                    else if (status == "ym" && id != selected_item.attr("id")) {
-                        selected_item = d3.select(this);
-                        center.month = parseInt(selected_item.attr("id").split("-")[1]) - 1;
+                    else if (status == "ym" && id != selected_element.attr("id")) {
+                        selected_element = d3.select(this);
+                        center.month = data.month.indexOf(parseInt(id.split("-")[1]));
                         repositionMonthes();
                     }
                     // collapse calendar and repositon monthes
                     else {
                         status = "ym";
-                        selected_item = d3.select(this);
-                        center.month = parseInt(id.split("-")[1]);
+                        selected_element = d3.select(this);
+                        center.month = data.month.indexOf(parseInt(id.split("-")[1]));
                         collapseCalendar();
                         repositionMonthes();
                     }
                 });
 
-            if (index == center.month)
-                selected_item = month;
+            if (i == center.month)
+                selected_element = month;
 
             monthX = lblockW / 3;
             monthY = (height - metric.month[center.month]) / 2;
-            if (index < center.month)
-                for (var j = index; j < center.month; j++)
+            if (i < center.month)
+                for (var j = i; j < center.month; j++)
                     monthY -= metric.month[j] + 2;
             else
-                for (var j = center.month; j < index; j++)
+                for (var j = center.month; j < i; j++)
                     monthY += metric.month[j] + 2;
-            monthW = lblockW / 3 - 6 * Math.abs(index - center.month);
+            monthW = lblockW / 3 - 6 * Math.abs(i - center.month);
 
             month.append("rect")
                 .attr("class", "month-rect")
-                .attr("x", monthX + 3 * Math.abs(index - center.month))
+                .attr("x", monthX + 3 * Math.abs(i - center.month))
                 .attr("y", monthY)
                 .attr("width", monthW)
-                .attr("height", metric.month[index])
-                .attr("fill", gradient(Math.abs(index - center.month) / monthLength, 4));
+                .attr("height", metric.month[i])
+                .attr("fill", gradient(Math.abs(i - center.month) / data.month.length, 4));
 
             month.append("text")
                 .attr("class", "month-name")
-                .attr("x", monthX + 3 * Math.abs(index - center.month))
+                .attr("x", monthX + 3 * Math.abs(i - center.month))
                 .attr("y", monthY)
                 .attr("dx", monthW / 2)
-                .attr("dy", metric.month[index] * 0.5)
+                .attr("dy", metric.month[i] * 0.5)
                 .attr("font-size", Math.floor(metric.month[i] * 0.7).toString() + "px")
-                .text((index + 1).toString());
+                .text(data.month[i].toString());
         }
     }
 
@@ -268,53 +285,46 @@ async function drawTree() {
         d3.selectAll(".year")
             .transition(transition)
             .attr("transform", `translate(${-lblockW*0.05},${height*0.35}) scale(0.3)`);
+        sleep(200);
         d3.selectAll(".month")
             .transition(transition)
             .attr("transform", `translate(${lblockW*0.02},${height*0.2}) scale(0.6)`);
 
-        status = "ymw";
-
         unit = lblockW / (3 * 8);
-        originYearMonth = selected_item.attr("id").split("-");
-        root = getNode(tree, originYearMonth);
-        for (var key in root.children) {
-            weekId = selected_item.attr("id") + "-" + key;
-            indexW = parseInt(key);
+        for (var k in weekdata) {
+            id_week = data.year[center.year].toString() + "-" +
+                data.month[center.month].toString() + "-" + k.toString();
             week = svg.append("g")
                 .attr("class", "week")
-                .attr("id", weekId)
+                .attr("id", id_week)
                 .on("mouseover", function() {
                     d3.select(this).attr("cursor", "pointer");
                 })
                 .on("click", function() {
-                    if (status == "ymw" && weekId != selected_item.attr("id")) {
-                        selected_item = d3.select(this);
+                    if (status == "ymw" && id_week != selected_element.attr("id")) {
+                        selected_element = d3.select(this);
+                        center.week = parseInt(d3.select(this).attr("id").split("-")[2]);
                     }
                 });
 
-            if (indexW == 1)
-                selected_item = week;
+            if (parseInt(k) == center.week)
+                selected_element = week;
 
-            subroot = root.children[key];
-            firstDay = undefined;
-            weekLength = Object.keys(subroot).length;
-            for (var subkey in subroot.children) {
-                if (firstDay == undefined)
-                    firstDay = parseInt(subkey);
-                dayId = weekId + "-" + subkey;
-                dayX = indexW == 1 ?
-                    lblockW / 2 + ((parseInt(subkey) - firstDay) + 7 - weekLength) * (unit + 5) :
-                    lblockW / 2 + (parseInt(subkey) - firstDay) * (unit + 5);
-                dayY = height / 2 + (indexW - 6 / 2 - 1) * (unit + 5) - 2.5;
+            for (var i in weekdata[k]) {
+                dayX = parseInt(k) == 1 ?
+                    lblockW / 2 + (parseInt(i) + 7 - weekdata[k].length) * (unit + 5) :
+                    lblockW / 2 + parseInt(i) * (unit + 5);
+                // 6 == weekdata.length, yet dictionary lack length property.
+                dayY = height / 2 + (parseInt(k) - 6 / 2 - 1) * (unit + 5) - 2.5;
 
                 week.append("rect")
                     .attr("class", "day")
-                    .attr("id", dayId)
+                    .attr("id", id_week + "-" + weekdata[k][i].toString())
                     .attr("x", dayX)
                     .attr("y", dayY)
                     .attr("width", unit)
                     .attr("height", unit)
-                    .attr("fill", gradient((indexW - 1) / 7, 4))
+                    .attr("fill", gradient(parseInt(k) / 6, 4))
                     .on("mouseover", function() {
                         d3.select(this).attr("cursor", "pointer");
                     })
@@ -346,11 +356,12 @@ async function drawTree() {
 
                 week.append("text")
                     .attr("class", "day-text")
+                    .attr("id", id_week + "-" + weekdata[k][i].toString() + "T")
                     .attr("x", dayX)
                     .attr("y", dayY)
                     .attr("dx", unit / 2)
                     .attr("dy", unit / 2)
-                    .text(subkey);
+                    .text(weekdata[k][i]);
             }
         }
     }
@@ -384,12 +395,21 @@ async function drawTree() {
             .transition(transition)
             .attr("transform", `translate(${-lblockW*0.15},${height*0.2}) scale(0.6)`);
     }
+ 
+    for (var i in data.year) {
+        yearX = lblockW / 3;
+        yearY = (height - metric.year[center.year]) / 2;
+        if (i < center.year)
+            for (var j = i; j < center.year; j++)
+                yearY -= metric.year[j] + 5;
+        else
+            for (var j = center.year; j < i; j++)
+                yearY += metric.year[j] + 5;
+        yearW = lblockW / 3 - 10 * Math.abs(i - center.year);
 
-    for (var key in tree) {
-        index = parseInt(tree[key].id);
         year = svg.append("g")
             .attr("class", "year")
-            .attr("id", key)
+            .attr("id", data.year[i].toString())
             .on("mouseover", function() {
                 d3.select(this).attr("cursor", "pointer");
                 d3.select(this).select(".year-rect")
@@ -404,56 +424,45 @@ async function drawTree() {
             .on("click", function() {
                 id = d3.select(this).attr("id");
                 // expand monthes
-                if (status == "y" && id == selected_item.attr("id")) {
+                if (status == "y" && id == selected_element.attr("id")) {
+                    status = "ym";
                     expandMonthes();
                 }
                 // reposition years
-                else if (status == "y" && id != selected_item.attr("id")) {
-                    selected_item = d3.select(this);
-                    center.year = parseInt(tree[selected_item.attr("id")].id);
+                else if (status == "y" && id != selected_element.attr("id")) {
+                    selected_element = d3.select(this);
+                    center.year = data.year.indexOf(parseInt(id));
                     repositionYears();
                 }
                 // shrink monthes and etc, then reposition years
                 else {
                     status = "y";
-                    selected_item = d3.select(this);
-                    center.year = parseInt(tree[selected_item.attr("id")].id);
+                    selected_element = d3.select(this);
+                    center.year = data.year.indexOf(parseInt(id));
                     collapseAll();
                     repositionYears();
                 }
             });
 
-        yearX = lblockW / 3;
-        yearY = (height - metric.year[0]) / 2;
-        for (var j = 0; j < index; j++)
-            yearY += metric.year[0] + 5;
-        yearW = lblockW / 3 - 10 * index;
-
-        if (index == 0) {
-            selected_item = year;
-
-            svg.append("text")
-            	.attr("class", "year-stat")
-            	.attr("x", lblockW / 3)
-            	.attr("y", height * 0.8);
-        }
+        if (i == center.year)
+            selected_element = year;
 
         year.append("rect")
             .attr("class", "year-rect")
-            .attr("x", yearX + 5 * index)
+            .attr("x", yearX + 5 * Math.abs(i - center.year))
             .attr("y", yearY)
             .attr("width", yearW)
-            .attr("height", metric.year[index])
-            .attr("fill", gradient(index / yearLength, 4));
+            .attr("height", metric.year[i])
+            .attr("fill", gradient(Math.abs(i - center.year) / data.year.length, 4));
 
-        year.append("text")
+        text = year.append("text")
             .attr("class", "year-name")
-            .attr("x", yearX + 5 * index)
+            .attr("x", yearX + 5 * Math.abs(i - center.year))
             .attr("y", yearY)
             .attr("dx", yearW / 2)
-            .attr("dy", metric.year[index] * 0.5)
-            .attr("font-size", Math.floor(metric.year[index] * 0.375).toString() + "px")
-            .text(key);
+            .attr("dy", metric.year[i] * 0.5)
+            .attr("font-size", Math.floor(metric.year[i] * 0.375).toString() + "px")
+            .text(data.year[i].toString());
     }
 }
 

@@ -18,6 +18,11 @@ rect {
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
+.year-stat {
+    text-anchor: middle;
+    font-family: "Consolas", "Arial", "Tahoma";
+}
+
 .month-name {
     text-anchor: middle;
     stroke: white;
