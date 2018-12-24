@@ -18,11 +18,6 @@ rect {
     font-family: "Consolas", "Arial", "Tahoma";
 }
 
-.year-stat {
-    text-anchor: middle;
-    font-family: "Consolas", "Arial", "Tahoma";
-}
-
 .month-name {
     text-anchor: middle;
     stroke: white;
@@ -44,4 +39,12 @@ rect {
     font-family: "Microsoft Yahei", "微软雅黑" ;
     /*font-weight: bold;*/
     fill: #0e2e3d;
+}
+
+#statistics {
+    text-anchor: middle;
+    font-size:  18px;
+    fill: steelblue;
+    /*font-weight: bold;*/
+    font-family: "Microsoft Yahei", "微软雅黑";
 }
