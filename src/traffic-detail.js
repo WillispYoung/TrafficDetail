@@ -55,20 +55,6 @@ function gradient(fraction, type) {
     return ans;
 }
 
-function getStartPosition() {
-	if (status == "y" || status == "ym") {
-		x = lblockW * 0.75;
-		y = height / 2;
-		return [x, y];
-	}
-	else {
-		unit = lblockW / 24;
-		x = lblockW * 0.9;
-		y = parseInt(selected_item.attr("y")) + unit / 2;
-		return [x, y];
-	}
-}
-
 function updateStatistics(stat, date) {
     statistics.selectAll("tspan").remove();
 
@@ -435,7 +421,7 @@ async function drawTree() {
                             status = "ymwd";
                             selected_item = d3.select(this);
                             selected_item.select(".day-rect")
-                            	.attr("stroke", "#ff5151")
+                                .attr("stroke", "#ff5151")
                                 .attr("stroke-width", 3);
 
                             date = dayId.split("-");
@@ -443,7 +429,7 @@ async function drawTree() {
                         } else if (status == "ymwd" && dayId != selected_item.attr("id")) {
                             // change day
                             selected_item.select(".day-rect")
-                            	.attr("stroke", null)
+                                .attr("stroke", null)
                                 .attr("stroke-width", null);
 
                             selected_item = d3.select(this);
