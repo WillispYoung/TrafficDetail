@@ -36,15 +36,86 @@ rect {
     margin-top: 10px;
     text-align: center;
     font-size: 30px;
-    font-family: "Microsoft Yahei", "微软雅黑" ;
+    font-family: "Microsoft Yahei", "微软雅黑";
     /*font-weight: bold;*/
     fill: #0e2e3d;
 }
 
 #statistics {
     text-anchor: middle;
-    font-size:  18px;
+    font-size: 18px;
     fill: steelblue;
     /*font-weight: bold;*/
     font-family: "Microsoft Yahei", "微软雅黑";
+}
+
+.route {
+    /*stroke: red;*/
+    stroke-width: 5;
+    stroke-opacity: 0.7;
+    stroke-dasharray: 10, 10;
+    fill: none;
+}
+
+.link {
+    /*stroke: steelblue;*/
+    stroke-width: 3;
+    stroke-opacity: 1;
+    fill: none;
+    pointer-events: none;
+}
+
+/*.node {
+    fill: white;
+    r: 5px;
+}
+
+.node:hover {
+    fill: red;
+    r: 10px;
+}*/
+
+.ipText {
+    font-size: 16px;
+
+    width: auto;
+    height: auto;
+    position: absolute;
+    text-align: center;
+    border-style: solid;
+    border-width: 1px;
+    background-color: white;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.xAxis,
+.yAxis {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+    font-family: "Consolas", "Arial", "Tahoma";
+    font-size: 16px;
+}
+
+.bar {
+    fill: #669900;
+}
+
+.bar-failed {
+    fill: #CC0000;
+}
+
+.bar-running {
+    fill: #33b5e5;
+}
+
+.bar-succeeded {
+    fill: #ffbb33;
+}
+
+.bar-killed {
+    fill: #33b5e5;
 }
